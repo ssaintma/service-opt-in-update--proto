@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atelier SMD – impacts sur les WT</title>
+<style>
+:root{--color-fg:#1f1e1c;--color-fg-muted:#6b6862;--color-bg:#ffffff;--color-panel:#faf9f6;--color-border-line:#e3e0d8;--color-ok:#2f7d4f;--color-warn:#a8650b;--color-bad:#c0392b;
+--font-anthropic-sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--font-anthropic-serif:Georgia,"Times New Roman",serif;
+--cds-font-size-caption:13px;--cds-font-size-body:15px;--cds-font-size-heading:19px;--cds-font-size-title:30px;--cds-font-weight-medium:600;
+--cds-gap-xs:4px;--cds-gap-sm:8px;--cds-gap-md:12px;--cds-gap-lg:20px;--cds-gap-xl:28px;--cds-pad-xs:6px;--cds-pad-sm:10px;--cds-pad-md:14px;--cds-pad-lg:20px;--cds-radius:10px}
+@media (prefers-color-scheme: dark){:root{--color-fg:#ecebe7;--color-fg-muted:#a6a39b;--color-bg:#1b1a18;--color-panel:#24231f;--color-border-line:#3a3833;--color-ok:#5cbf83;--color-warn:#e0a24a;--color-bad:#ef7565}}
+html{background:var(--color-bg)}body{margin:0;padding:32px 16px 64px;background:var(--color-bg);color:var(--color-fg)}
+
+.at { max-width: 920px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--cds-gap-xl); color: var(--color-fg); font-family: var(--font-anthropic-sans); }
+.at h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; }
+.at h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-sm); }
+.at h3 { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); margin: 0; }
+.at p { margin: 0; line-height: 1.5; }
+.at-muted { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.at-lead { color: var(--color-fg-muted); margin-top: var(--cds-gap-xs) !important; }
+.at-progress { margin-top: var(--cds-gap-sm) !important; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.at-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-md); }
+.at-context ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: var(--cds-gap-xs); line-height: 1.5; }
+.at-scroll { overflow-x: auto; }
+.at-table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-body); }
+.at-table th, .at-table td { text-align: left; padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); vertical-align: top; }
+.at-table th { font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.at-spec { display: inline-block; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--color-border-line); font-size: var(--cds-font-size-caption); margin: 1px 2px 1px 0; white-space: nowrap; }
+.at-spec--match { border-color: var(--color-ok); color: var(--color-ok); }
+.at-spec--add { border-color: var(--color-ok); color: var(--color-ok); border-style: dashed; }
+.at-spec--del { border-color: var(--color-bad); color: var(--color-bad); text-decoration: line-through; }
+.at-yes { color: var(--color-ok); font-weight: var(--cds-font-weight-medium); }
+.at-no { color: var(--color-fg-muted); }
+.at-case-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--cds-gap-sm); flex-wrap: wrap; }
+.at-num { color: var(--color-fg-muted); font-weight: 400; margin-right: 6px; }
+.at-badge { font-size: var(--cds-font-size-caption); padding: 2px 10px; border-radius: 999px; border: 1px solid var(--color-border-line); color: var(--color-fg-muted); white-space: nowrap; }
+.at-badge--done { border-color: var(--color-ok); color: var(--color-ok); }
+.at-badge--info { border-color: var(--color-warn); color: var(--color-warn); }
+.at-label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px !important; }
+.at-ba { display: grid; grid-template-columns: 1fr auto 1fr; gap: var(--cds-gap-sm); align-items: start; }
+.at-ba-arrow { align-self: center; color: var(--color-fg-muted); font-size: 20px; }
+@media (max-width: 560px) { .at-ba { grid-template-columns: 1fr; } .at-ba-arrow { transform: rotate(90deg); justify-self: center; } }
+.at-side { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-sm); display: flex; flex-direction: column; gap: 6px; background: var(--color-bg); }
+.at-svc { font-size: var(--cds-font-size-caption); }
+.at-wts { display: flex; flex-wrap: wrap; gap: 6px; }
+.at-wt { border-radius: 6px; padding: 4px 8px; font-size: var(--cds-font-size-caption); border: 1px solid var(--color-border-line); line-height: 1.3; }
+.at-wt b { font-weight: var(--cds-font-weight-medium); }
+.at-wt--has { background: var(--color-panel); }
+.at-wt--no { color: var(--color-fg-muted); border-style: dashed; opacity: .75; }
+.at-wt--gain { border: 2px solid var(--color-ok); color: var(--color-ok); }
+.at-wt--loss { border: 2px solid var(--color-bad); color: var(--color-bad); }
+.at-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; }
+.at-q { border-left: 3px solid var(--color-fg); padding-left: var(--cds-pad-sm); }
+.at-form { display: flex; flex-direction: column; gap: var(--cds-gap-sm); border-top: 1px solid var(--color-border-line); padding-top: var(--cds-pad-md); }
+.at-opts { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); border: 0; padding: 0; margin: 0; }
+.at-opt { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 6px 12px; cursor: pointer; background: var(--color-bg); font-size: var(--cds-font-size-body); }
+.at-opt:has(input:checked) { border-color: var(--color-fg); box-shadow: inset 0 0 0 1px var(--color-fg); }
+.at-field { display: flex; flex-direction: column; gap: 4px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.at-field textarea, .at-field input[type=text] { font: inherit; font-size: var(--cds-font-size-body); color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 8px 10px; width: 100%; box-sizing: border-box; }
+.at-field textarea { min-height: 64px; resize: vertical; }
+.at-todo { border-style: dashed !important; }
+.at-grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--cds-gap-sm); }
+.at-prio { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--cds-gap-sm); }
+.at-pistes { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; line-height: 1.5; }
+.at-section-sep { border-top: 2px solid var(--color-border-line); padding-top: var(--cds-pad-lg); }
+.at-recap pre { white-space: pre-wrap; word-break: break-word; background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md); font-size: var(--cds-font-size-caption); margin: 0; max-height: 420px; overflow: auto; min-height: 80px; }
+.at-btns { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; }
+.at-btn { font: inherit; font-size: var(--cds-font-size-body); padding: 8px 14px; border-radius: var(--cds-radius); border: 1px solid var(--color-fg); background: var(--color-fg); color: var(--color-bg); cursor: pointer; }
+.at-btn--ghost { background: transparent; color: var(--color-fg); }
+.at-ok { color: var(--color-ok); font-size: var(--cds-font-size-caption); }
+.at-err { color: var(--color-bad); font-size: var(--cds-font-size-caption); }
+</style></head><body>
+
+
+<div class="at">
+  <header id="titre">
+    <h1>Évolutions du référentiel de services : impacts sur les équipes de travail</h1>
+    <p class="at-lead">Atelier de décision. Pour chaque cas, choisissez une réponse et ajoutez un commentaire. Les réponses s’enregistrent automatiquement et sont regroupées en fin de page.</p>
+    <p class="at-progress"><span data-draw="progression" data-source="reponses">—</span></p>
+    <p id="unsaved" class="at-err" hidden>Cette réponse n’a pas pu être enregistrée.</p>
+  </header>
+
+  <section id="contexte" class="at-card at-context">
+    <h2>Contexte</h2>
+    <ul>
+      <li><b>Aujourd’hui</b> : chaque équipe de travail (WT) est associée à quelques spécialités, et chaque service du référentiel SMD aussi. À l’achat d’un service, la distribution cherche les WT dont une spécialité correspond à celle du service.</li>
+      <li><b>Demain</b> : le lien devient direct entre la WT et le code du service. Les priorités P1/P2, aujourd’hui définies par spécialité, descendent au niveau du service.</li>
+      <li><b>Pendant la transition</b> : la liste des services d’une WT est calculée à partir de ses spécialités. Une WT a accès à un service si elle partage au moins une spécialité avec lui.</li>
+      <li><b>Périmètre</b> : uniquement les évolutions du référentiel de services (SMD) et leur effet sur les WT.</li>
+    </ul>
+  </section>
+
+  <section id="exemple" class="at-card">
+    <h2>Exemple fil rouge</h2>
+    <p>Service <b>49xxxxxx « Installation chauffe-eau »</b>, spécialités : <span class="at-spec">Plomberie</span><span class="at-spec">Électricité</span></p>
+    <div class="at-scroll">
+      <table class="at-table">
+        <thead><tr><th>Équipe</th><th>Spécialités</th><th>A le service 49xxxxxx ?</th></tr></thead>
+        <tbody>
+          <tr><td>WT1</td><td><span class="at-spec at-spec--match">Plomberie</span></td><td class="at-yes">Oui (Plomberie)</td></tr>
+          <tr><td>WT2</td><td><span class="at-spec at-spec--match">Électricité</span></td><td class="at-yes">Oui (Électricité)</td></tr>
+          <tr><td>WT3</td><td><span class="at-spec">Chauffage</span></td><td class="at-no">Non</td></tr>
+          <tr><td>WT4</td><td><span class="at-spec at-spec--match">Plomberie</span><span class="at-spec">Chauffage</span></td><td class="at-yes">Oui (Plomberie)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="at-legend at-muted">
+      <span>Légende des cas :</span>
+      <span class="at-wt at-wt--has"><b>WT</b> a le service</span>
+      <span class="at-wt at-wt--no"><b>WT</b> n’a pas le service</span>
+      <span class="at-wt at-wt--gain"><b>WT</b> gagne le service</span>
+      <span class="at-wt at-wt--loss"><b>WT</b> perd le service</span>
+    </div>
+  </section>
+
+  <h2 id="cas">Cas à arbitrer</h2>
+
+  <!-- CAS 1 -->
+  <article id="cas-1" class="at-card" data-case="c1">
+    <div class="at-case-head"><h3><span class="at-num">1.</span>Un service gagne une spécialité</h3><span class="at-badge" data-draw="etat" data-source="reponses">—</span></div>
+    <p><span class="at-label">Évolution dans SMD</span><br>49xxxxxx gagne la spécialité Chauffage.</p>
+    <div class="at-ba">
+      <div class="at-side"><p class="at-label">Avant</p><p class="at-svc">49xxxxxx : <span class="at-spec">Plomberie</span><span class="at-spec">Électricité</span></p>
+        <div class="at-wts"><span class="at-wt at-wt--has"><b>WT1</b> · Plomberie</span><span class="at-wt at-wt--has"><b>WT2</b> · Électricité</span><span class="at-wt at-wt--no"><b>WT3</b> · Chauffage</span><span class="at-wt at-wt--has"><b>WT4</b> · Plomberie, Chauffage</span></div></div>
+      <div class="at-ba-arrow" aria-hidden="true">→</div>
+      <div class="at-side"><p class="at-label">Après</p><p class="at-svc">49xxxxxx : <span class="at-spec">Plomberie</span><span class="at-spec">Électricité</span><span class="at-spec at-spec--add">+ Chauffage</span></p>
+        <div class="at-wts"><span class="at-wt at-wt--has"><b>WT1</b> · Plomberie</span><span class="at-wt at-wt--has"><b>WT2</b> · Électricité</span><span class="at-wt at-wt--gain"><b>WT3</b> · gagne le service</span><span class="at-wt at-wt--has"><b>WT4</b> · inchangée</span></div></div>
+    </div>
+    <p class="at-muted">WT3 obtient 49xxxxxx automatiquement. WT4 ne change pas : elle était déjà éligible via Plomberie.</p>
+    <p class="at-q"><b>Question</b> : est-il acceptable qu’une WT reçoive un service sans action de sa part ? Faut-il une validation ?</p>
+    <div class="at-form">
+      <fieldset class="at-opts" aria-label="Réponse cas 1">
+        <label class="at-opt"><input type="radio" name="c1-decision" data-field="decision" data-label="Décision" value="Acceptable tel quel">Acceptable tel quel</label>
+        <label class="at-opt"><input type="radio" name="c1-decision" data-field="decision" data-label="Décision" value="Acceptable avec validation">Acceptable avec validation</label>
+        <label class="at-opt"><input type="radio" name="c1-decision" data-field="decision" data-label="Décision" value="Non acceptable">Non acceptable</label>
+      </fieldset>
+      <label class="at-field">Commentaire<textarea data-field="commentaire" data-label="Commentaire" placeholder="Précisions, conditions, qui valide…"></textarea></label>
+    </div>
+  </article>
+
+  <!-- CAS 2 -->
+  <article id="cas-2" class="at-card" data-case="c2">
+    <div class="at-case-head"><h3><span class="at-num">2.</span>Un service perd une spécialité</h3><span class="at-badge" data-draw="etat" data-source="reponses">—</span></div>
+    <p><span class="at-label">Évolution dans SMD</span><br>49xxxxxx perd la spécialité Électricité.</p>
+    <div class="at-ba">
+      <div class="at-side"><p class="at-label">Avant</p><p class="at-svc">49xxxxxx : <span class="at-spec">Plomberie</span><span class="at-spec">Électricité</span></p>
+        <div class="at-wts"><span class="at-wt at-wt--has"><b>WT1</b> · Plomberie</span><span class="at-wt at-wt--has"><b>WT2</b> · Électricité</span><span class="at-wt at-wt--no"><b>WT3</b> · Chauffage</span><span class="at-wt at-wt--has"><b>WT4</b> · Plomberie, Chauffage</span></div></div>
+      <div class="at-ba-arrow" aria-hidden="true">→</div>
+      <div class="at-side"><p class="at-label">Après</p><p class="at-svc">49xxxxxx : <span class="at-spec">Plomberie</span><span class="at-spec at-spec--del">Électricité</span></p>
+        <div class="at-wts"><span class="at-wt at-wt--has"><b>WT1</b> · inchangée</span><span class="at-wt at-wt--loss"><b>WT2</b> · perd le service</span><span class="at-wt at-wt--no"><b>WT3</b> · Chauffage</span><span class="at-wt at-wt--has"><b>WT4</b> · inchangée</span></div></div>
+    </div>
+    <p class="at-muted">WT2 perd 49xxxxxx. WT1 et WT4 ne changent pas.</p>
+    <p class="at-q"><b>Question</b> : est-il acceptable qu’une WT perde un service sans action de sa part ? Faut-il une validation ?</p>
+    <div class="at-form">
+      <fieldset class="at-opts" aria-label="Réponse cas 2">
+        <label class="at-opt"><input type="radio" name="c2-decision" data-field="decision" data-label="Décision" value="Acceptable tel quel">Acceptable tel quel</label>
+        <label class="at-opt"><input type="radio" name="c2-decision" data-field="decision" data-label="Décision" value="Acceptable avec validation">Acceptable avec validation</label>
+        <label class="at-opt"><input type="radio" name="c2-decision" data-field="decision" data-label="Décision" value="Non acceptable">Non acceptable</label>
+      </fieldset>
+      <label class="at-field">Commentaire<textarea data-field="commentaire" data-label="Commentaire" placeholder="Précisions, conditions, qui valide…"></textarea></label>
+    </div>
+  </article>
+
+  <!-- CAS 3 -->
+  <article id="cas-3" class="at-card" data-case="c3">
+    <div class="at-case-head"><h3><span class="at-num">3.</span>Un service change de spécialité</h3><span class="at-badge" data-draw="etat" data-source="reponses">—</span></div>
+    <p><span class="at-label">Évolution dans SMD</span><br>Sur 49xxxxxx, Électricité est remplacée par Chauffage.</p>
+    <div class="at-ba">
+      <div class="at-side"><p class="at-label">Avant</p><p class="at-svc">49xxxxxx : <span class="at-spec">Plomberie</span><span class="at-spec">Électricité</span></p>
+        <div class="at-wts"><span class="at-wt at-wt--has"><b>WT1</b> · Plomberie</span><span class="at-wt at-wt--has"><b>WT2</b> · Électricité</span><span class="at-wt at-wt--no"><b>WT3</b> · Chauffage</span><span class="at-wt at-wt--has"><b>WT4</b> · Plomberie, Chauffage</span></div></div>
+      <div class="at-ba-arrow" aria-hidden="true">→</div>
+      <div class="at-side"><p class="at-label">Après</p><p class="at-svc">49xxxxxx : <span class="at-spec">Plomberie</span><span class="at-spec at-spec--del">Électricité</span><span class="at-spec at-spec--add">+ Chauffage</span></p>
+        <div class="at-wts"><span class="at-wt at-wt--has"><b>WT1</b> · inchangée</span><span class="at-wt at-wt--loss"><b>WT2</b> · perd le service</span><span class="at-wt at-wt--gain"><b>WT3</b> · gagne le service</span><span class="at-wt at-wt--has"><b>WT4</b> · inchangée</span></div></div>
+    </div>
+    <p class="at-muted">Combinaison des cas 1 et 2 : WT2 perd 49xxxxxx et WT3 le gagne.</p>
+    <p class="at-q"><b>Question</b> : mêmes questions qu’aux cas 1 et 2 (gain et perte sans action de la WT, validation ?). Ce remplacement est-il fréquent ?</p>
+    <div class="at-form">
+      <fieldset class="at-opts" aria-label="Réponse cas 3">
+        <label class="at-opt"><input type="radio" name="c3-decision" data-field="decision" data-label="Décision" value="Acceptable tel quel">Acceptable tel quel</label>
+        <label class="at-opt"><input type="radio" name="c3-decision" data-field="decision" data-label="Décision" value="Acceptable avec validation">Acceptable avec validation</label>
+        <label class="at-opt"><input type="radio" name="c3-decision" data-field="decision" data-label="Décision" value="Non acceptable">Non acceptable</label>
+      </fieldset>
+      <label class="at-field">Fréquence de ce remplacement<input type="text" class="at-todo" data-field="frequence" data-label="Fréquence du remplacement" placeholder="À compléter"></label>
+      <label class="at-field">Commentaire<textarea data-field="commentaire" data-label="Commentaire" placeholder="Précisions, conditions, qui valide…"></textarea></label>
+    </div>
+  </article>
+
+  <!-- CAS 4 -->
+  <article id="cas-4" class="at-card" data-case="c4">
+    <div class="at-case-head"><h3><span class="at-num">4.</span>Nouveau service avec ses spécialités</h3><span class="at-badge" data-draw="etat" data-source="reponses">—</span></div>
+    <p><span class="at-label">Évolution dans SMD</span><br>Un nouveau service est créé avec ses spécialités.</p>
+    <div class="at-ba">
+      <div class="at-side"><p class="at-label">Avant</p><p class="at-svc">Le service n’existe pas.</p>
+        <div class="at-wts"><span class="at-wt at-wt--no"><b>Aucune WT</b> n’a le service</span></div></div>
+      <div class="at-ba-arrow" aria-hidden="true">→</div>
+      <div class="at-side"><p class="at-label">Après</p><p class="at-svc">Nouveau service, avec ses spécialités</p>
+        <div class="at-wts"><span class="at-wt at-wt--gain"><b>Toutes les WT</b> dont une spécialité correspond l’obtiennent immédiatement</span></div></div>
+    </div>
+    <p class="at-q"><b>Question</b> : est-il acceptable que toutes les WT concernées reçoivent ce nouveau service sans action de leur part ? Faut-il une validation ?</p>
+    <div class="at-form">
+      <fieldset class="at-opts" aria-label="Réponse cas 4">
+        <label class="at-opt"><input type="radio" name="c4-decision" data-field="decision" data-label="Décision" value="Acceptable tel quel">Acceptable tel quel</label>
+        <label class="at-opt"><input type="radio" name="c4-decision" data-field="decision" data-label="Décision" value="Acceptable avec validation">Acceptable avec validation</label>
+        <label class="at-opt"><input type="radio" name="c4-decision" data-field="decision" data-label="Décision" value="Non acceptable">Non acceptable</label>
+      </fieldset>
+      <div class="at-grid2">
+        <label class="at-field">Exemple de nouveau service (code, libellé)<input type="text" class="at-todo" data-field="exemple_service" data-label="Exemple de nouveau service" placeholder="À compléter"></label>
+        <label class="at-field">Spécialités du nouveau service<input type="text" class="at-todo" data-field="exemple_specialites" data-label="Spécialités du nouveau service" placeholder="À compléter"></label>
+      </div>
+      <label class="at-field">Commentaire<textarea data-field="commentaire" data-label="Commentaire" placeholder="Précisions, conditions, qui valide…"></textarea></label>
+    </div>
+  </article>
+
+  <!-- CAS 5 -->
+  <article id="cas-5" class="at-card" data-case="c5">
+    <div class="at-case-head"><h3><span class="at-num">5.</span>Service désactivé, archivé ou code supprimé</h3><span class="at-badge at-badge--info">Pour information</span></div>
+    <p><span class="at-label">Évolution dans SMD</span><br>49xxxxxx est désactivé, archivé, ou son code est supprimé.</p>
+    <div class="at-ba">
+      <div class="at-side"><p class="at-label">Avant</p><p class="at-svc">49xxxxxx : <span class="at-spec">Plomberie</span><span class="at-spec">Électricité</span></p>
+        <div class="at-wts"><span class="at-wt at-wt--has"><b>WT1</b> · Plomberie</span><span class="at-wt at-wt--has"><b>WT2</b> · Électricité</span><span class="at-wt at-wt--no"><b>WT3</b> · Chauffage</span><span class="at-wt at-wt--has"><b>WT4</b> · Plomberie, Chauffage</span></div></div>
+      <div class="at-ba-arrow" aria-hidden="true">→</div>
+      <div class="at-side"><p class="at-label">Après</p><p class="at-svc">49xxxxxx n’est plus disponible</p>
+        <div class="at-wts"><span class="at-wt at-wt--loss"><b>WT1</b> · perd le service</span><span class="at-wt at-wt--loss"><b>WT2</b> · perd le service</span><span class="at-wt at-wt--no"><b>WT3</b> · Chauffage</span><span class="at-wt at-wt--loss"><b>WT4</b> · perd le service</span></div></div>
+    </div>
+    <p class="at-muted">49xxxxxx disparaît des listes des WT. Aucune question sur ce point : ce cas est présenté pour information. Le sort des interventions en cours relève de l’exécution (voir la question à part plus bas).</p>
+    <div class="at-form">
+      <label class="at-field">Remarque éventuelle<textarea data-field="commentaire" data-label="Remarque" placeholder="Facultatif"></textarea></label>
+    </div>
+  </article>
+
+  <!-- CAS 6 -->
+  <article id="cas-6" class="at-card" data-case="c6">
+    <div class="at-case-head"><h3><span class="at-num">6.</span>Priorités P1 / P2</h3><span class="at-badge" data-draw="etat" data-source="reponses">—</span></div>
+    <p><span class="at-label">Évolution dans SMD</span><br>49xxxxxx gagne une spécialité pour laquelle WT1 a une autre priorité.</p>
+    <div class="at-ba">
+      <div class="at-side"><p class="at-label">Avant</p><p class="at-svc">49xxxxxx : <span class="at-spec">Plomberie</span><span class="at-spec">Électricité</span></p>
+        <div class="at-wts"><span class="at-wt at-wt--has"><b>WT1</b> · une priorité sur la spécialité commune</span></div></div>
+      <div class="at-ba-arrow" aria-hidden="true">→</div>
+      <div class="at-side"><p class="at-label">Après</p><p class="at-svc">49xxxxxx : <span class="at-spec">Plomberie</span><span class="at-spec">Électricité</span><span class="at-spec at-spec--add">+ spécialité ajoutée</span></p>
+        <div class="at-wts"><span class="at-wt at-wt--loss"><b>WT1</b> · P1 sur une spécialité, P2 sur l’autre : quelle priorité pour 49xxxxxx ?</span></div></div>
+    </div>
+    <p class="at-muted">La priorité de WT1 pour 49xxxxxx peut changer, voire devenir ambiguë si WT1 a P1 sur une spécialité du service et P2 sur une autre.</p>
+    <div class="at-prio">
+      <label class="at-field">Spécialité ajoutée dans l’exemple<input type="text" class="at-todo" data-field="specialite_ajoutee" data-label="Spécialité ajoutée" placeholder="À compléter"></label>
+      <label class="at-field">Priorité de WT1 sur la spécialité déjà commune<input type="text" class="at-todo" data-field="prio_existante" data-label="Priorité de WT1 sur la spécialité commune" placeholder="À compléter (P1 / P2)"></label>
+      <label class="at-field">Priorité de WT1 sur la spécialité ajoutée<input type="text" class="at-todo" data-field="prio_ajoutee" data-label="Priorité de WT1 sur la spécialité ajoutée" placeholder="À compléter (P1 / P2)"></label>
+    </div>
+    <p class="at-q"><b>Question</b> : quelle priorité s’applique quand plusieurs spécialités du service divergent ?</p>
+    <div class="at-form">
+      <fieldset class="at-opts" aria-label="Réponse cas 6">
+        <label class="at-opt"><input type="radio" name="c6-decision" data-field="decision" data-label="Décision" value="Acceptable tel quel">Acceptable tel quel</label>
+        <label class="at-opt"><input type="radio" name="c6-decision" data-field="decision" data-label="Décision" value="Acceptable avec validation">Acceptable avec validation</label>
+        <label class="at-opt"><input type="radio" name="c6-decision" data-field="decision" data-label="Décision" value="Non acceptable">Non acceptable</label>
+      </fieldset>
+      <label class="at-field">Règle de priorité souhaitée en cas de divergence<textarea data-field="regle_priorite" data-label="Règle de priorité souhaitée" placeholder="À compléter"></textarea></label>
+      <label class="at-field">Commentaire<textarea data-field="commentaire" data-label="Commentaire" placeholder="Précisions, conditions, qui valide…"></textarea></label>
+    </div>
+  </article>
+
+  <!-- QUESTION À PART -->
+  <section id="question-execution" class="at-card at-section-sep" data-case="exec">
+    <div class="at-case-head"><h3>Question à part : interventions en cours</h3><span class="at-badge" data-draw="etat" data-source="reponses">—</span></div>
+    <p class="at-muted">Hors du calcul des listes de services : cette question concerne l’exécution.</p>
+    <p class="at-q"><b>Question</b> : qu’advient-il des interventions en cours pour un service désactivé, archivé ou dont le code est supprimé ?</p>
+    <div class="at-form">
+      <label class="at-field">Réponse<textarea data-field="reponse" data-label="Réponse" placeholder="À compléter"></textarea></label>
+      <label class="at-field">Commentaire<textarea data-field="commentaire" data-label="Commentaire"></textarea></label>
+    </div>
+  </section>
+
+  <!-- QUESTION TRANSVERSE -->
+  <section id="question-transverse" class="at-card" data-case="transverse">
+    <div class="at-case-head"><h3>Question transverse : délai de mise à jour des listes</h3><span class="at-badge" data-draw="etat" data-source="reponses">—</span></div>
+    <p>La liste des services d’une WT est recalculée lors d’un événement de la WT. Une modification dans SMD ne déclenche donc rien tant que la WT n’émet pas d’événement.</p>
+    <div>
+      <p class="at-label">Pistes (présentées sans recommandation)</p>
+      <ol class="at-pistes">
+        <li>Attendre le prochain événement de la WT : les listes restent obsolètes pendant un temps indéterminé.</li>
+        <li>Une modification dans SMD déclenche un recalcul des WT concernées.</li>
+        <li>Un recalcul périodique.</li>
+      </ol>
+    </div>
+    <p class="at-q"><b>Questions</b> : quel délai de propagation est acceptable ? Quel impact sur les distributions et rendez-vous déjà créés ?</p>
+    <div class="at-form">
+      <fieldset class="at-opts" aria-label="Pistes acceptables (plusieurs choix possibles)">
+        <label class="at-opt"><input type="checkbox" data-field="pistes" data-label="Pistes jugées acceptables" value="Piste 1 (prochain événement de la WT)">Piste 1 acceptable</label>
+        <label class="at-opt"><input type="checkbox" data-field="pistes" data-label="Pistes jugées acceptables" value="Piste 2 (recalcul sur modification SMD)">Piste 2 acceptable</label>
+        <label class="at-opt"><input type="checkbox" data-field="pistes" data-label="Pistes jugées acceptables" value="Piste 3 (recalcul périodique)">Piste 3 acceptable</label>
+      </fieldset>
+      <div class="at-grid2">
+        <label class="at-field">Délai de propagation acceptable<input type="text" class="at-todo" data-field="delai" data-label="Délai de propagation acceptable" placeholder="À compléter"></label>
+      </div>
+      <label class="at-field">Impact sur les distributions et rendez-vous déjà créés<textarea data-field="impact" data-label="Impact sur distributions et rendez-vous existants" placeholder="À compléter"></textarea></label>
+      <label class="at-field">Commentaire<textarea data-field="commentaire" data-label="Commentaire"></textarea></label>
+    </div>
+  </section>
+
+  <!-- RÉCAPITULATIF -->
+  <section id="recapitulatif" class="at-card at-recap at-section-sep">
+    <h2>Récapitulatif des réponses</h2>
+    <p class="at-muted">Toutes les réponses enregistrées sur cette page, prêtes à copier dans un compte rendu.</p>
+    <pre data-draw="recap" data-source="reponses"></pre>
+    <div class="at-btns">
+      <button type="button" class="at-btn" data-copy="md">Copier en Markdown</button>
+      <button type="button" class="at-btn at-btn--ghost" data-copy="txt">Copier en texte</button>
+      <span class="at-ok" data-copied hidden>Copié dans le presse-papiers.</span>
+      <span class="at-err" data-copyfail hidden>Copie automatique impossible : le texte est sélectionné, utilisez Cmd+C / Ctrl+C.</span>
+    </div>
+  </section>
+</div>
+
+<script src="shim.js"></script>
+<script>
+(function () {
+  var CASES = function () { return Array.prototype.slice.call(document.querySelectorAll('[data-case]')); };
+  var DECIDABLE = ['c1', 'c2', 'c3', 'c4', 'c6', 'exec', 'transverse'];
+
+  function rows() { var d = dash.data('reponses'); return d.status === 'ok' && Array.isArray(d.data) ? d.data : []; }
+  function rowFor(id) { return rows().find(function (r) { return r.id === id; }); }
+  function hasContent(r) {
+    if (!r) return false;
+    return Object.keys(r).some(function (k) {
+      if (k === 'id' || k === 'maj') return false;
+      var v = r[k]; return Array.isArray(v) ? v.length > 0 : (v != null && String(v).trim() !== '');
+    });
+  }
+  function caseTitle(card) {
+    var h = card.querySelector('h3'); if (!h) return card.dataset.case;
+    return h.textContent.replace(/\s+/g, ' ').trim();
+  }
+  function fieldDefs(card) {
+    var seen = {}, out = [];
+    card.querySelectorAll('[data-field]').forEach(function (el) {
+      var f = el.dataset.field; if (seen[f]) return; seen[f] = 1;
+      out.push({ field: f, label: el.dataset.label || f });
+    });
+    return out;
+  }
+  function collect(card) {
+    var row = {};
+    card.querySelectorAll('[data-field]').forEach(function (el) {
+      var f = el.dataset.field;
+      if (el.type === 'radio') { if (el.checked) row[f] = el.value; else if (!(f in row)) row[f] = ''; }
+      else if (el.type === 'checkbox') { row[f] = row[f] || []; if (el.checked) row[f].push(el.value); }
+      else row[f] = el.value;
+    });
+    row.maj = new Date().toISOString();
+    return row;
+  }
+
+  var userIdP = null;
+  async function save(card) {
+    var ok = true;
+    try {
+      var db = await claude.use('db');
+      if (!userIdP) userIdP = claude.use('user').then(function (u) { return u.id(); });
+      var uid = await userIdP;
+      await db.doc('data/users/' + uid + '/atelier/reponses/' + card.dataset.case).set(collect(card));
+    } catch (e) { ok = false; }
+    document.querySelectorAll('#unsaved').forEach(function (p) { p.hidden = ok; });
+  }
+
+  var timers = {};
+  CASES().forEach(function (card) {
+    var id = card.dataset.case;
+    card.addEventListener('change', function () { clearTimeout(timers[id]); save(card); });
+    card.addEventListener('input', function (ev) {
+      if (ev.target.type === 'radio' || ev.target.type === 'checkbox') return;
+      clearTimeout(timers[id]); timers[id] = setTimeout(function () { save(card); }, 700);
+    });
+  });
+
+  // Restaure les réponses enregistrées dans les champs (sans écraser une saisie en cours)
+  dash.onData(function () {
+    if (dash.data('reponses').status !== 'ok') return;
+    CASES().forEach(function (card) {
+      var r = rowFor(card.dataset.case); if (!r) return;
+      card.querySelectorAll('[data-field]').forEach(function (el) {
+        if (el === document.activeElement) return;
+        var v = r[el.dataset.field];
+        if (el.type === 'radio') el.checked = (v === el.value);
+        else if (el.type === 'checkbox') el.checked = Array.isArray(v) && v.indexOf(el.value) >= 0;
+        else if (v != null && el.value !== String(v)) el.value = String(v);
+      });
+    });
+  });
+
+  dash.draw('etat', function (el) {
+    var card = el.closest('[data-case]'); var st = dash.data('reponses').status;
+    if (st !== 'ok') { el.textContent = '—'; el.className = 'at-badge'; return; }
+    var done = hasContent(rowFor(card.dataset.case));
+    el.textContent = done ? 'Réponse enregistrée' : 'À traiter';
+    el.className = 'at-badge' + (done ? ' at-badge--done' : '');
+  });
+
+  dash.draw('progression', function (el) {
+    if (dash.data('reponses').status !== 'ok') { el.textContent = '—'; return; }
+    var n = DECIDABLE.filter(function (id) { return hasContent(rowFor(id)); }).length;
+    el.textContent = n + ' question' + (n > 1 ? 's' : '') + ' sur ' + DECIDABLE.length + ' avec une réponse enregistrée';
+  });
+
+  function buildRecap(fmt) {
+    var md = fmt === 'md', lines = [];
+    var title = (document.querySelector('.at h1') || {}).textContent || 'Atelier';
+    var date = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    lines.push(md ? '# ' + title.trim() : title.trim().toUpperCase());
+    lines.push((md ? '_' : '') + 'Réponses de l’atelier – ' + date + (md ? '_' : ''));
+    CASES().forEach(function (card) {
+      var r = rowFor(card.dataset.case) || {};
+      lines.push('');
+      var t = caseTitle(card);
+      lines.push(md ? '## ' + t : t + '\n' + '-'.repeat(Math.min(t.length, 60)));
+      fieldDefs(card).forEach(function (d) {
+        var v = r[d.field];
+        if (Array.isArray(v)) v = v.join(' ; ');
+        v = (v == null || String(v).trim() === '') ? '(non renseigné)' : String(v).trim().replace(/\n+/g, ' / ');
+        lines.push((md ? '- **' + d.label + '** : ' : '- ' + d.label + ' : ') + v);
+      });
+    });
+    return lines.join('\n');
+  }
+
+  dash.draw('recap', function (el) {
+    var st = dash.data('reponses').status;
+    if (st === 'loading') { el.textContent = '—'; return; }
+    if (st === 'error') { el.textContent = 'Les réponses n’ont pas pu être chargées.'; return; }
+    el.textContent = buildRecap('md');
+  });
+
+  function flag(sel, on) { document.querySelectorAll(sel).forEach(function (s) { s.hidden = !on; }); }
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', async function () {
+      var text = buildRecap(btn.dataset.copy);
+      flag('[data-copied]', false); flag('[data-copyfail]', false);
+      try { await navigator.clipboard.writeText(text); flag('[data-copied]', true); }
+      catch (e) {
+        var pre = document.querySelector('[data-draw="recap"]');
+        if (pre) { var range = document.createRange(); range.selectNodeContents(pre); var s = window.getSelection(); s.removeAllRanges(); s.addRange(range); }
+        flag('[data-copyfail]', true);
+      }
+      setTimeout(function () { flag('[data-copied]', false); }, 3000);
+    });
+  });
+})();
+</script>
+
+<script>dash._start();</script>
+</body></html>
