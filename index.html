@@ -324,7 +324,7 @@ html{background:var(--color-bg)}body{margin:0;padding:32px 16px 64px;background:
   }
   function caseTitle(card) {
     var h = card.querySelector('h3'); if (!h) return card.dataset.case;
-    return h.textContent.replace(/\s+/g, ' ').trim();
+    return Array.prototype.map.call(h.childNodes, function (n) { return n.textContent.trim(); }).filter(Boolean).join(' ');
   }
   function fieldDefs(card) {
     var seen = {}, out = [];
